@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public class MetricUseCase {
     private final MetricRepository repository;
 
-    public Mono<Metric> saveMetric() {
+    public Mono<Metric> saveMetric(Metric metric) {
         return null;
     }
 }

@@ -1,14 +1,18 @@
-##Spring Configuration
 server:
   port: 8080
 spring:
   application:
-    name: REPORTES
+    name: "REPORTES"
   devtools:
     add-properties: false
   h2:
     console:
       enabled: true
-      path: /h2
+      path: "/h2"
   profiles:
-    include:
+    include: null
+aws:
+  dynamodb:
+    endpoint: "http://localhost:8000"
+  region: "us-east-1"
+
