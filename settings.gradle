@@ -30,3 +30,5 @@ include ':logger'
 project(':logger').projectDir = file('./infrastructure/driven-adapters/logger')
 include ':jwt-adapter'
 project(':jwt-adapter').projectDir = file('./infrastructure/driven-adapters/jwt-adapter')
+include ':sqs-listener'
+project(':sqs-listener').projectDir = file('./infrastructure/entry-points/sqs-listener')

@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -23,12 +24,12 @@ public class MicrometerMetricPublisher implements MetricPublisher {
         service.submit(() -> {
             List<Tag> tags = buildTags(metricCollection);
             metricCollection.stream()
-                    .filter(metricRecord -> metricRecord.value() instanceof Duration || metricRecord.value() instanceof Integer)
-                    .forEach(metricRecord -> {
-                        if (metricRecord.value() instanceof Duration) {
-                            registry.timer(metricRecord.metric().name(), tags).record((Duration) metricRecord.value());
-                        } else if (metricRecord.value() instanceof Integer) {
-                            registry.counter(metricRecord.metric().name(), tags).increment((Integer) metricRecord.value());
+                    .filter(record -> record.value() instanceof Duration || record.value() instanceof Integer)
+                    .forEach(record -> {
+                        if (record.value() instanceof Duration) {
+                            registry.timer(record.metric().name(), tags).record((Duration) record.value());
+                        } else if (record.value() instanceof Integer) {
+                            registry.counter(record.metric().name(), tags).increment((Integer) record.value());
                         }
                     });
         });
@@ -36,13 +37,13 @@ public class MicrometerMetricPublisher implements MetricPublisher {
 
     @Override
     public void close() {
-        //It's empty because we don't need to close anything
+
     }
 
     private List<Tag> buildTags(MetricCollection metricCollection) {
         return metricCollection.stream()
-                .filter(metricRecord -> metricRecord.value() instanceof String || metricRecord.value() instanceof Boolean)
-                .map(metricRecord -> Tag.of(metricRecord.metric().name(), metricRecord.value().toString()))
-                .toList();
+                .filter(record -> record.value() instanceof String || record.value() instanceof Boolean)
+                .map(record -> Tag.of(record.metric().name(), record.value().toString()))
+                .collect(Collectors.toList());
     }
 }
