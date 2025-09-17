@@ -27,7 +27,7 @@ public class SQSProcessor implements Function<Message, Mono<Void>> {
         return Mono.just(message.body())
                 .flatMap(this::processMessage)
                 .flatMap(metricUseCase::saveMetric)
-                .flatMap(metric -> Mono.empty());
+                .then();
     }
 
     private Mono<Metric> processMessage(String body) {

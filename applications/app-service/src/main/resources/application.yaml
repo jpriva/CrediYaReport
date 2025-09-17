@@ -5,12 +5,14 @@ spring:
     name: "REPORTES"
   devtools:
     add-properties: false
+    restart:
+      enabled: false # Disable automatic restarts to prevent premature context closure
   h2:
     console:
       enabled: true
       path: "/h2"
   profiles:
-    active: "${SPRING_PROFILES_ACTIVE:local}"
+    active: "${SPRING_PROFILES_ACTIVE:aws}"
 aws:
   dynamodb:
     endpoint: "${AWS_DYNAMO_ENDPOINT:http://localhost:8000}"
@@ -29,8 +31,8 @@ cors:
 entrypoint:
   sqs:
     region: "${ADAPTERS_SQS_REGION:us-east-1}"
-    endpoint: "http://localhost:4566"
-    queueUrl: "http://localhost:4566/000000000000/solicitude-report-queue"
+    endpoint: "${AWS_SQS_REPORT_ENDPOINT:}"
+    queueUrl: "${AWS_SQS_REPORT_URL:}"
     waitTimeSeconds: 20
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 10
@@ -40,3 +42,8 @@ security:
   jwt:
     secret: ${JWT_SECRET:6wmLjTUj5h4CXtp23BPjlr2IouInKGEBhqVi+LkR1KlIisuE4dKm4vbwWhUKwPsg53CjqX5Uu2L8TshpLXPdWA==}
     expiration: 3600
+
+logging:
+  level:
+    root: INFO
+    co.com.pragma: DEBUG
