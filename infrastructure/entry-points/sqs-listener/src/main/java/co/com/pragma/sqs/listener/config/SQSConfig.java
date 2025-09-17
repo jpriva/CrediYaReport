@@ -1,5 +1,6 @@
 package co.com.pragma.sqs.listener.config;
 
+import co.com.pragma.model.logs.gateways.LoggerPort;
 import co.com.pragma.sqs.listener.helper.SQSListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,12 +23,13 @@ import java.util.function.Function;
 @Configuration
 public class SQSConfig {
 
-    @Bean
-    public SQSListener sqsListener(SqsAsyncClient client, SQSProperties properties, Function<Message, Mono<Void>> fn) {
+    @Bean(destroyMethod = "stop")
+    public SQSListener sqsListener(SqsAsyncClient client, SQSProperties properties, Function<Message, Mono<Void>> fn, LoggerPort logger) {
         return SQSListener.builder()
                 .client(client)
                 .properties(properties)
                 .processor(fn)
+                .logger(logger)
                 .build()
                 .start();
     }

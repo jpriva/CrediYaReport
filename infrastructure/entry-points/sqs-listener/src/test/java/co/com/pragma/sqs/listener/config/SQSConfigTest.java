@@ -1,5 +1,6 @@
 package co.com.pragma.sqs.listener.config;
 
+import co.com.pragma.model.logs.gateways.LoggerPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,6 +24,9 @@ class SQSConfigTest {
     @Mock
     private SQSProperties sqsProperties;
 
+    @Mock
+    private LoggerPort logger;
+
     @BeforeEach
     void init() {
         MockitoAnnotations.openMocks(this);
@@ -35,7 +39,7 @@ class SQSConfigTest {
 
     @Test
     void configSQSListenerIsNotNull() {
-        assertThat(sqsConfig.sqsListener(sqsAsyncClient, sqsProperties, message -> Mono.empty())).isNotNull();
+        assertThat(sqsConfig.sqsListener(sqsAsyncClient, sqsProperties, message -> Mono.empty(), logger)).isNotNull();
     }
 
     @Test

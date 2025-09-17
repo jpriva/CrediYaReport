@@ -1,8 +1,10 @@
 package co.com.pragma.sqs.listener.helper;
 
+import co.com.pragma.model.logs.gateways.LoggerPort;
 import co.com.pragma.sqs.listener.config.SQSProperties;
 import lombok.Builder;
-import lombok.extern.log4j.Log4j2;
+import reactor.core.Disposable;
+import reactor.core.Disposables;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -15,28 +17,53 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-@Log4j2
 @Builder
 public class SQSListener {
     private final SqsAsyncClient client;
     private final SQSProperties properties;
     private final Function<Message, Mono<Void>> processor;
+    private final LoggerPort logger;
     private String operation;
+    private volatile boolean running = true;
+    private ExecutorService executorService;
+    private Disposable subscription;
 
     public SQSListener start() {
         this.operation = "MessageFrom:" + properties.queueUrl();
-        ExecutorService service = Executors.newFixedThreadPool(properties.numberOfThreads());
-        Flux<Void> flow = listenRetryRepeat().publishOn(Schedulers.fromExecutorService(service));
+        this.executorService = Executors.newFixedThreadPool(properties.numberOfThreads());
+        Flux<Void> flow = listenRetryRepeat().publishOn(Schedulers.fromExecutorService(this.executorService));
+
+        Disposable.Composite compositeDisposable = Disposables.composite();
         for (var i = 0; i < properties.numberOfThreads(); i++) {
-            flow.subscribe();
+            compositeDisposable.add(flow.subscribe());
         }
+        this.subscription = compositeDisposable;
+        logger.info("SQS Listener started for queue: {}", properties.queueUrl());
         return this;
+    }
+
+    public void stop() {
+        logger.info("Stopping SQS Listener for queue: {}", properties.queueUrl());
+        if (running) {
+            running = false;
+            if (subscription != null && !subscription.isDisposed()) {
+                subscription.dispose();
+            }
+            if (executorService != null && !executorService.isShutdown()) {
+                executorService.shutdown();
+            }
+            logger.info("SQS Listener stopped.");
+        }
+    }
+
+    private boolean isRunning() {
+        return this.running;
     }
 
     private Flux<Void> listenRetryRepeat() {
         return listen()
-                .doOnError(e -> log.error("Error listening sqs queue", e))
-                .repeat();
+                .doOnError(e -> logger.error("Error listening sqs queue", e))
+                .repeat(this::isRunning);
     }
 
     private Flux<Void> listen() {
@@ -46,7 +73,7 @@ public class SQSListener {
                         .tag("operation", operation)
                         .metrics()
                         .then(confirm(message)))
-                .onErrorContinue((e, o) -> log.error("Error listening sqs message", e));
+                .onErrorContinue((e, o) -> logger.error("Error listening sqs message", e));
     }
 
     private Mono<Void> confirm(Message message) {
@@ -58,7 +85,7 @@ public class SQSListener {
     private Flux<Message> getMessages() {
         return Mono.fromCallable(this::getReceiveMessageRequest)
                 .flatMap(request -> Mono.fromFuture(client.receiveMessage(request)))
-                .doOnNext(response -> log.debug("{} received messages from sqs", response.messages().size()))
+                .doOnNext(response -> logger.debug("{} received messages from sqs", response.messages().size()))
                 .flatMapMany(response -> Flux.fromIterable(response.messages()));
     }
 

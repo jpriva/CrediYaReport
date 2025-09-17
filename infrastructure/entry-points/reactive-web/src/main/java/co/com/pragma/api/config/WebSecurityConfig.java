@@ -50,7 +50,7 @@ public class WebSecurityConfig {
                                 ApiConstants.ApiPaths.SWAGGER_PATH
                         ).permitAll()
                         .pathMatchers(
-                                HttpMethod.POST, ApiPathMatchers.REPORT_MATCHER
+                                HttpMethod.GET, ApiPathMatchers.REPORT_MATCHER
                         ).hasAnyAuthority(
                                 ApiConstants.Role.ADMIN_ROLE_NAME
                         ).anyExchange().authenticated()

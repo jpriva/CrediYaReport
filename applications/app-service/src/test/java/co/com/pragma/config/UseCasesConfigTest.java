@@ -1,5 +1,6 @@
 package co.com.pragma.config;
 
+import co.com.pragma.model.logs.gateways.LoggerPort;
 import co.com.pragma.model.metric.gateways.MetricRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,6 +37,11 @@ class UseCasesConfigTest {
         @Bean
         public MetricRepository metricRepository() {
             return Mockito.mock(MetricRepository.class);
+        }
+
+        @Bean
+        public LoggerPort logger() {
+            return Mockito.mock(LoggerPort.class);
         }
     }
 }
