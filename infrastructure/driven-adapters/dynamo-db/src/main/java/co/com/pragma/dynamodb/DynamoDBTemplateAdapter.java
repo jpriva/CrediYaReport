@@ -37,4 +37,14 @@ public class DynamoDBTemplateAdapter extends TemplateAdapterOperations<Metric, S
                 .queryConditional(QueryConditional.sortGreaterThanOrEqualTo(Key.builder().sortValue(sortKey).build()))
                 .build();
     }
+
+    @Override
+    public Mono<Metric> saveMetric(Metric metric) {
+        return save(metric);
+    }
+
+    @Override
+    public Mono<Metric> getMetric(String name) {
+        return getById(name);
+    }
 }

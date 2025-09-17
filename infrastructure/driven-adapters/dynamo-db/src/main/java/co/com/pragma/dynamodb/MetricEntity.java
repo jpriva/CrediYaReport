@@ -2,16 +2,18 @@ package co.com.pragma.dynamodb;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
+import java.math.BigDecimal;
+
 @DynamoDbBean
 public class MetricEntity {
 
     private String name;
-    private String value;
+    private BigDecimal value;
 
     public MetricEntity() {
     }
 
-    public MetricEntity(String name, String value) {
+    public MetricEntity(String name, BigDecimal value) {
         this.name = name;
         this.value = value;
     }
@@ -27,11 +29,11 @@ public class MetricEntity {
     }
 
     @DynamoDbAttribute("valor")
-    public String getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(BigDecimal value) {
         this.value = value;
     }
 }

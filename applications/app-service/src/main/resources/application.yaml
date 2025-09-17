@@ -10,11 +10,11 @@ spring:
       enabled: true
       path: "/h2"
   profiles:
-    include: null
+    active: "${SPRING_PROFILES_ACTIVE:local}"
 aws:
   dynamodb:
-    endpoint: "http://localhost:8000"
-  region: "us-east-1"
+    endpoint: "${AWS_DYNAMO_ENDPOINT:http://localhost:8000}"
+  region: "${AWS_REGION:us-east-1}"
 management:
   endpoints:
     web:
@@ -28,9 +28,9 @@ cors:
   allowed-origins: "http://localhost:4200,http://localhost:8083"
 entrypoint:
   sqs:
-    region: "us-east-1"
+    region: "${ADAPTERS_SQS_REGION:us-east-1}"
     endpoint: "http://localhost:4566"
-    queueUrl: "http://localhost:4566/000000000000/sample"
+    queueUrl: "http://localhost:4566/000000000000/solicitude-report-queue"
     waitTimeSeconds: 20
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 10
