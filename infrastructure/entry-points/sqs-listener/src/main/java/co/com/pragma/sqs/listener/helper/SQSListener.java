@@ -78,7 +78,7 @@ public class SQSListener {
         return this.running;
     }
 
-    private Flux<Void> listenRetryRepeat() {
+    Flux<Void> listenRetryRepeat() {
         return listen()
             .doOnError(e -> logger.error("An unrecoverable error occurred in the SQS listener loop. Restarting poll.", e))
             .repeatWhen(completedSignalFlux -> completedSignalFlux
@@ -91,7 +91,7 @@ public class SQSListener {
                 }));
     }
 
-    private Flux<Void> listen() {
+    Flux<Void> listen() {
         return getMessages()
                 .doOnSubscribe(s -> logger.debug("SQS Batch: Subscribed to process a new batch of messages."))
                 .flatMap(message -> processor.apply(message)
@@ -107,7 +107,7 @@ public class SQSListener {
                 );
     }
 
-    private Mono<Void> confirm(Message message) {
+    Mono<Void> confirm(Message message) {
         return Mono.fromCallable(() -> getDeleteMessageRequest(message.receiptHandle()))
                 .doOnNext(req -> logger.debug("SQS Confirm: Attempting to delete message [id={}]", message.messageId()))
                 .flatMap(request -> Mono.fromFuture(client.deleteMessage(request)))
@@ -116,7 +116,7 @@ public class SQSListener {
                 .then();
     }
 
-    private Flux<Message> getMessages() {
+    Flux<Message> getMessages() {
         return Mono.fromCallable(this::getReceiveMessageRequest)
                 .doOnNext(req -> logger.debug("SQS Receive: Sending request to SQS with waitTime: {}s, maxMessages: {}",
                         req.waitTimeSeconds(), req.maxNumberOfMessages()))
