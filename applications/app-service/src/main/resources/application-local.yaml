@@ -1,0 +1,7 @@
+aws:
+  dynamodb:
+    endpoint: "${AWS_DYNAMO_ENDPOINT:http://localhost:8000}"
+entrypoint:
+  sqs:
+    endpoint: "${AWS_SQS_REPORT_ENDPOINT:http://localhost:4566}"
+    queueUrl: "${AWS_SQS_REPORT_URL:http://localhost:4566/000000000000/solicitude-report-queue}"
