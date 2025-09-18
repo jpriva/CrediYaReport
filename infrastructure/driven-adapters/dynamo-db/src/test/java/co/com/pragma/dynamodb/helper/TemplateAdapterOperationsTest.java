@@ -8,10 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.reactivecommons.utils.ObjectMapper;
+import org.reactivestreams.Subscription;
 import reactor.test.StepVerifier;
+import software.amazon.awssdk.core.async.SdkPublisher;
 import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
+import software.amazon.awssdk.enhanced.dynamodb.model.PagePublisher;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -97,6 +103,69 @@ class TemplateAdapterOperationsTest {
         // Act & Assert: Verificar que delete devuelve el objeto de dominio correctamente mapeado
         StepVerifier.create(dynamoDBTemplateAdapter.delete(metric))
                 .expectNext(metric)
+                .verifyComplete();
+    }
+
+    @Test
+    void testQuery() {
+        QueryEnhancedRequest queryEnhancedRequest = QueryEnhancedRequest.builder().build();
+        Page<MetricEntity> page = Page.builder(MetricEntity.class)
+                .items(List.of(metricEntity))
+                .build();
+
+        PagePublisher<MetricEntity> pagePublisher = s -> s.onSubscribe(new Subscription() {
+            @Override
+            public void request(long n) {
+                if (n > 0) {
+                    s.onNext(page);
+                    s.onComplete();
+                }
+            }
+
+            @Override
+            public void cancel() {
+                //not implemented
+            }
+        });
+
+        when(table.query(any(QueryEnhancedRequest.class))).thenReturn(pagePublisher);
+
+        StepVerifier.create(dynamoDBTemplateAdapter.query(queryEnhancedRequest))
+                .expectNext(List.of(metric))
+                .verifyComplete();
+    }
+
+
+    @Test
+    void testQueryByIndex() {
+        QueryEnhancedRequest queryEnhancedRequest = QueryEnhancedRequest.builder().build();
+        Page<MetricEntity> page = Page.builder(MetricEntity.class)
+                .items(List.of(metricEntity))
+                .build();
+
+        SdkPublisher<Page<MetricEntity>> mockPublisher = subscriber -> {
+            subscriber.onSubscribe(new Subscription() {
+                private boolean completed = false;
+
+                @Override
+                public void request(long n) {
+                    if (n > 0 && !completed) {
+                        completed = true;
+                        subscriber.onNext(page);
+                        subscriber.onComplete();
+                    }
+                }
+
+                @Override
+                public void cancel() {
+                    completed = true;
+                }
+            });
+        };
+        when(index.query(any(QueryEnhancedRequest.class))).thenReturn(mockPublisher);
+
+        StepVerifier.create(dynamoDBTemplateAdapter.queryByIndex(queryEnhancedRequest, "some-index")) // <-- Pasa el nombre del índice aquí
+                .expectNext(List.of(metric))
                 .verifyComplete();
     }
 }

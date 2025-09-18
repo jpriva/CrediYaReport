@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
+import static co.com.pragma.model.constants.Metrics.AMOUNT_METRIC;
 import static co.com.pragma.model.constants.Metrics.QUANTITY_METRIC;
 
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class MetricUseCase {
     private Mono<String> validateMetricName(String name) {
         if (name == null || name.isBlank()) return Mono.error(new InvalidPathVariableException());
         if (name.equals(QUANTITY_METRIC)) return Mono.just(name);
+        if (name.equals(AMOUNT_METRIC)) return Mono.just(name);
         return Mono.error(new InvalidPathVariableException());
     }
 }

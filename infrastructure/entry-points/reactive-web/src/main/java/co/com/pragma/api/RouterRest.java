@@ -46,7 +46,7 @@ public class RouterRest {
                                             description = METRIC_NAME_DESC,
                                             required = true,
                                             example = Metrics.QUANTITY_METRIC,
-                                            schema = @Schema(type = "string", allowableValues = {Metrics.QUANTITY_METRIC})
+                                            schema = @Schema(type = "string", allowableValues = {Metrics.QUANTITY_METRIC, Metrics.AMOUNT_METRIC})
                                     )
                             },
                             responses = {

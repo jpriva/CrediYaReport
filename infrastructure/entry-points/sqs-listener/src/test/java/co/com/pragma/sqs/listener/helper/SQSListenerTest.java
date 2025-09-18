@@ -19,10 +19,13 @@ import software.amazon.awssdk.services.sqs.model.*;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -42,6 +45,9 @@ class SQSListenerTest {
 
     @Mock
     private ObjectMapper objectMapper;
+
+    @Mock
+    private Function<Message, Mono<Void>> processor;
 
     @BeforeEach
     @SneakyThrows
@@ -279,5 +285,67 @@ class SQSListenerTest {
                 .thenAwait(Duration.ofMillis(1000)) // Advance time by 1s for the second delay
                 .thenCancel()
                 .verify();
+    }
+
+    @Test
+    void start_shouldLogDebug_whenFlowTerminatesWithInterruptedException() throws InterruptedException {
+        // --- Arrange ---
+        final CountDownLatch latch = new CountDownLatch(1);
+        final InterruptedException interruptedException = new InterruptedException("Shutdown process");
+
+        when(sqsProperties.queueUrl()).thenReturn("http://test-queue");
+        when(sqsProperties.numberOfThreads()).thenReturn(1);
+
+        // Create a spy to mock the internal listenRetryRepeat method
+        SQSListener realListener = SQSListener.builder()
+                .client(asyncClient)
+                .properties(sqsProperties)
+                .processor(processor)
+                .logger(logger)
+                .build();
+        SQSListener spyListener = spy(realListener);
+
+        // Mock the flow to emit an InterruptedException
+        doReturn(Flux.error(interruptedException)).when(spyListener).listenRetryRepeat();
+
+        // Configure the logger mock to release the latch when the specific debug message is logged
+        doAnswer(invocation -> {
+            latch.countDown();
+            return null;
+        }).when(logger).debug("SQS listener polling stopped intentionally as part of shutdown process.");
+
+        // --- Act ---
+        spyListener.start();
+
+        // --- Assert ---
+        assertTrue(latch.await(2, TimeUnit.SECONDS), "The debug log for InterruptedException was not called in time.");
+        verify(logger).debug("SQS listener polling stopped intentionally as part of shutdown process.");
+    }
+
+    @Test
+    void start_shouldLogError_whenFlowTerminatesWithUnexpectedError() throws InterruptedException {
+        // --- Arrange ---
+        final CountDownLatch latch = new CountDownLatch(1);
+        final RuntimeException unexpectedError = new RuntimeException("Unexpected DB error");
+
+        when(sqsProperties.queueUrl()).thenReturn("http://test-queue");
+        when(sqsProperties.numberOfThreads()).thenReturn(1);
+
+        SQSListener realListener = SQSListener.builder().client(asyncClient).properties(sqsProperties).processor(processor).logger(logger).build();
+        SQSListener spyListener = spy(realListener);
+
+        doReturn(Flux.error(unexpectedError)).when(spyListener).listenRetryRepeat();
+
+        doAnswer(invocation -> {
+            latch.countDown();
+            return null;
+        }).when(logger).error(anyString(), any(Throwable.class));
+
+        // --- Act ---
+        spyListener.start();
+
+        // --- Assert ---
+        assertTrue(latch.await(2, TimeUnit.SECONDS), "The error log for unexpected error was not called in time.");
+        verify(logger).error("SQS listener subscription terminated with an unexpected error.", unexpectedError);
     }
 }

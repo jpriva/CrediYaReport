@@ -65,19 +65,6 @@ public abstract class TemplateAdapterOperations<E, K, V> {
         return listOfModel(pagePublisher);
     }
 
-    /**
-     * @return Mono<List < E>>
-     * @implNote Bancolombia does not suggest the Scan function for DynamoDB tables due to the low performance resulting
-     * from the design of the database engine (Key value). Optimize the query using Query, GetItem or BatchGetItem
-     * functions, and if necessary, consider the Single-Table Design pattern for DynamoDB.
-     * @deprecated
-     */
-    @Deprecated(forRemoval = true)
-    public Mono<List<E>> scan() {
-        PagePublisher<V> pagePublisher = table.scan();
-        return listOfModel(pagePublisher);
-    }
-
     private Mono<List<E>> listOfModel(PagePublisher<V> pagePublisher) {
         return Mono.from(pagePublisher).map(page -> page.items().stream().map(this::toModel).toList());
     }
