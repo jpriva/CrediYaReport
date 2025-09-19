@@ -56,7 +56,7 @@ subprojects {
 
     pitest {
         targetClasses = ['co.com.pragma.*']
-        excludedClasses = []
+        excludedClasses = ['co.com.pragma.metrics.aws.MicrometerMetricPublisher']
         excludedTestClasses = []
         pitestVersion = '1.20.1'
         verbose = false
@@ -100,6 +100,11 @@ tasks.register('jacocoMergedReport', JacocoReport) {
         csv.setRequired false
         html.setRequired true
     }
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: [
+                'co/com/pragma/metrics/aws/MicrometerMetricPublisher.class'
+        ])
+    }))
 }
 
 tasks.withType(JavaCompile).configureEach {

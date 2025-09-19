@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class Handler {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final MetricUseCase metricUseCase;
     private final MetricMapper metricMapper;
 

@@ -17,6 +17,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class SQSProcessor implements Function<Message, Mono<Void>> {
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private final MetricUseCase metricUseCase;
     private final LoggerPort logger;
     private final ObjectMapper objectMapper;

@@ -1,6 +1,6 @@
 aws:
   dynamodb:
-    endpoint: "${AWS_DYNAMO_ENDPOINT:http://localhost:8000}"
+    endpoint: "${AWS_DYNAMO_ENDPOINT:https://dynamodb.us-east-1.amazonaws.com}"
 entrypoint:
   sqs:
     endpoint: "${AWS_SQS_REPORT_ENDPOINT:https://sqs.us-east-1.amazonaws.com}"
