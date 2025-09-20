@@ -1,10 +1,14 @@
 package co.com.pragma.config;
 
+import co.com.pragma.model.logs.gateways.LoggerPort;
+import co.com.pragma.model.metric.gateways.MetricRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UseCasesConfigTest {
@@ -31,14 +35,13 @@ class UseCasesConfigTest {
     static class TestConfig {
 
         @Bean
-        public MyUseCase myUseCase() {
-            return new MyUseCase();
+        public MetricRepository metricRepository() {
+            return Mockito.mock(MetricRepository.class);
         }
-    }
 
-    static class MyUseCase {
-        public String execute() {
-            return "MyUseCase Test";
+        @Bean
+        public LoggerPort logger() {
+            return Mockito.mock(LoggerPort.class);
         }
     }
 }

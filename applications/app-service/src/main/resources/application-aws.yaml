@@ -1,0 +1,17 @@
+aws:
+  dynamodb:
+    endpoint: "${AWS_DYNAMO_ENDPOINT:https://dynamodb.us-east-1.amazonaws.com}"
+entrypoint:
+  sqs:
+    endpoint: "${AWS_SQS_REPORT_ENDPOINT:https://sqs.us-east-1.amazonaws.com}"
+    queueUrl: "${AWS_SQS_REPORT_URL:https://sqs.us-east-1.amazonaws.com/096187159240/solicitude-report-queue}"
+security:
+  jwt:
+    secret: ${JWT_SECRET:iBdGbA8Dxowf12Zs7IYH91+KwKOg5yb39RGQv6pOWes=}
+cors:
+  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8083}"
+
+logging:
+  level:
+    root: INFO
+    co.com.pragma: DEBUG

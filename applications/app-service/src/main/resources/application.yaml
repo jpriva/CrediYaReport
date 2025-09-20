@@ -1,14 +1,44 @@
-##Spring Configuration
 server:
-  port: 8080
+  port: 8083
 spring:
   application:
-    name: REPORTES
+    name: "REPORTES"
   devtools:
     add-properties: false
+    restart:
+      enabled: false
   h2:
     console:
       enabled: true
-      path: /h2
+      path: "/h2"
   profiles:
-    include:
+    active: "${SPRING_PROFILES_ACTIVE:local}"
+aws:
+  dynamodb:
+    endpoint: "${AWS_DYNAMO_ENDPOINT:http://localhost:8000}"
+  region: "${AWS_REGION:us-east-1}"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cors:
+  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8083}"
+entrypoint:
+  sqs:
+    region: "${ADAPTERS_SQS_REGION:us-east-1}"
+    endpoint: "${AWS_SQS_REPORT_ENDPOINT:}"
+    queueUrl: "${AWS_SQS_REPORT_URL:}"
+    waitTimeSeconds: 20
+    maxNumberOfMessages: 10
+    visibilityTimeoutSeconds: 10
+    numberOfThreads: 1
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 3600
