@@ -24,7 +24,7 @@ class DynamoDBConfigTest {
     @Test
     void testAmazonDynamoDB() {
 
-        DynamoDbAsyncClient result = dynamoDBConfig.amazonDynamoDB(
+        DynamoDbAsyncClient result = dynamoDBConfig.awsAmazonDynamoDB(
                 "http://aws.dynamo.test",
                 "region",
                 publisher);
