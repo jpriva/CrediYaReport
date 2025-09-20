@@ -6,13 +6,13 @@ spring:
   devtools:
     add-properties: false
     restart:
-      enabled: false # Disable automatic restarts to prevent premature context closure
+      enabled: false
   h2:
     console:
       enabled: true
       path: "/h2"
   profiles:
-    active: "${SPRING_PROFILES_ACTIVE:aws}"
+    active: "${SPRING_PROFILES_ACTIVE:local}"
 aws:
   dynamodb:
     endpoint: "${AWS_DYNAMO_ENDPOINT:http://localhost:8000}"
@@ -27,7 +27,7 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8083"
+  allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8083}"
 entrypoint:
   sqs:
     region: "${ADAPTERS_SQS_REGION:us-east-1}"
@@ -40,10 +40,5 @@ entrypoint:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:6wmLjTUj5h4CXtp23BPjlr2IouInKGEBhqVi+LkR1KlIisuE4dKm4vbwWhUKwPsg53CjqX5Uu2L8TshpLXPdWA==}
+    secret: ${JWT_SECRET}
     expiration: 3600
-
-logging:
-  level:
-    root: INFO
-    co.com.pragma: DEBUG

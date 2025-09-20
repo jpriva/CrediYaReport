@@ -19,10 +19,23 @@ import java.net.URI;
 public class DynamoDBConfig {
 
     @Bean
-    @Profile({"local", "aws"})
-    public DynamoDbAsyncClient amazonDynamoDB(@Value("${aws.dynamodb.endpoint}") String endpoint,
-                                              @Value("${aws.region}") String region,
-                                              MetricPublisher publisher) {
+    @Profile("local")
+    public DynamoDbAsyncClient localAmazonDynamoDB(@Value("${aws.dynamodb.endpoint}") String endpoint,
+                                                   @Value("${aws.region}") String region,
+                                                   MetricPublisher publisher) {
+        return DynamoDbAsyncClient.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("dummy", "dummy")))
+                .region(Region.of(region))
+                .endpointOverride(URI.create(endpoint))
+                .overrideConfiguration(o -> o.addMetricPublisher(publisher))
+                .build();
+    }
+
+    @Bean
+    @Profile("aws")
+    public DynamoDbAsyncClient awsAmazonDynamoDB(@Value("${aws.dynamodb.endpoint}") String endpoint,
+                                                 @Value("${aws.region}") String region,
+                                                 MetricPublisher publisher) {
         return DynamoDbAsyncClient.builder()
                 .credentialsProvider(ProfileCredentialsProvider.create("default"))
                 .region(Region.of(region))
@@ -32,7 +45,7 @@ public class DynamoDBConfig {
     }
 
     @Bean
-    @Profile({"dev", "cer", "pdn"})
+    @Profile({"prod"})
     public DynamoDbAsyncClient amazonDynamoDBAsync(MetricPublisher publisher, @Value("${aws.region}") String region) {
         return DynamoDbAsyncClient.builder()
                 .credentialsProvider(WebIdentityTokenFileCredentialsProvider.create())

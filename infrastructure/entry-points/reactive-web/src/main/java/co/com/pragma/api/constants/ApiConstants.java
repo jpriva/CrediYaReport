@@ -31,12 +31,16 @@ public class ApiConstants {
         //PERMIT ALL
         public static final String API_DOCS_MATCHER = "/v3/api-docs/**";
         public static final String SWAGGER_UI_MATCHER = "/swagger-ui/**";
+        //SUPER_USER
+        public static final String ACTUATOR_MATCHER = "/actuator/**";
+        public static final String HEALTH_CHECK_MATCHER = "/actuator/health/**";
         //ADMIN
         public static final String REPORT_MATCHER = ApiPaths.REPORT_PATH +"/**";
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Role {
+        public static final String SUPER_USER_ROLE_NAME = "SUPER_USER";
         public static final String CLIENT_ROLE_NAME = "CLIENTE";
         public static final String ADMIN_ROLE_NAME = "ADMIN";
         public static final String ADVISOR_ROLE_NAME = "ASESOR";
