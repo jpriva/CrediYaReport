@@ -23,17 +23,17 @@ public class ApiConstants {
         public static final String BASE_PATH = "/api/v1";
         public static final String REPORT_PATH = BASE_PATH + "/reportes";
         public static final String REPORT_BY_NAME_PATH = REPORT_PATH + "/{" + ApiParams.METRIC_NAME_PARAM + "}";
-        public static final String SWAGGER_PATH = "/swagger-ui.html";
+        public static final String SWAGGER_PATH = "/report/swagger-ui.html";
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class ApiPathMatchers {
         //PERMIT ALL
-        public static final String API_DOCS_MATCHER = "/v3/api-docs/**";
-        public static final String SWAGGER_UI_MATCHER = "/swagger-ui/**";
+        public static final String API_DOCS_MATCHER = "/report/api-docs/**";
+        public static final String SWAGGER_UI_MATCHER = "/report/swagger-ui/**";
         //SUPER_USER
-        public static final String ACTUATOR_MATCHER = "/actuator/**";
-        public static final String HEALTH_CHECK_MATCHER = "/actuator/health/**";
+        public static final String ACTUATOR_MATCHER = "/report/actuator/**";
+        public static final String HEALTH_CHECK_MATCHER = "/report/actuator/health/**";
         //ADMIN
         public static final String REPORT_MATCHER = ApiPaths.REPORT_PATH +"/**";
     }

@@ -45,6 +45,7 @@ springdoc:
       title: "Crediya Report API Microservice"
       version: "1.0.0"
       description: "This is the API for Crediya Report Microservice"
+    path: /report/api-docs
   swagger-ui:
     path: /report/swagger-ui.html
 
