@@ -20,6 +20,7 @@ aws:
 management:
   endpoints:
     web:
+      base-path: "/report/actuator"
       exposure:
         include: "health,prometheus"
   endpoint:
@@ -37,6 +38,15 @@ entrypoint:
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 10
     numberOfThreads: 1
+
+springdoc:
+  api-docs:
+    info:
+      title: "Crediya Report API Microservice"
+      version: "1.0.0"
+      description: "This is the API for Crediya Report Microservice"
+  swagger-ui:
+    path: /report/swagger-ui.html
 
 security:
   jwt:
